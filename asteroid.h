@@ -86,7 +86,7 @@ public:
         //acceleration = sum of forces/mass
         double sum_forces_x = 0;
         double sum_forces_y = 0;
-        for (int i = 0; i < forces_y.size(); ++i){
+        for (unsigned int i = 0; i < forces_y.size(); ++i){
             sum_forces_x += forces_x[i];
             sum_forces_y += forces_y[i];
         }

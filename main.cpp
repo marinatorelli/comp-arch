@@ -4,12 +4,11 @@
 #include <cmath>
 #include <fstream>
 #include "asteroid.h"
-//#include "gtest/gtest.h"
 
 using namespace std;
 
 void print_ast(std::vector<Asteroid*> ast){
-    for (int i = 0; i < ast.size(); ++i){
+    for (unsigned int i = 0; i < ast.size(); ++i){
         std::cout << ast[i]->x << " " << ast[i]->y << " " << ast[i]->vel_x << " " << ast[i]->vel_y << " " << ast[i]->mass << std::endl;
     }
 }
@@ -21,20 +20,22 @@ void print_planets(Planet* ast[], int limit){
 }
 
 
-int main() {
-
+int main(int argc, char *argv[]) {
+     //process input args
+    if (argc != 5) {
+        std::cerr << "Error: Wrong number of parameters\n";
+        return -1;
+    }
+    int num_asteroids = atoi(argv[1]);
+    int num_iter = atoi(argv[2]);
+    int num_planets = atoi(argv[3]);
+    int seed = atoi(argv[4]);
 
     //info to generate the asteroids
     int width = 200;
     int height = 200;
     double mass = 1000;
     double sdm = 50;
-
-    //parameters (to be command line args)
-    int num_asteroids = 2;
-    int num_iter = 2;
-    int num_planets = 2;
-    unsigned int seed = 2;
 
     //random number generator
     default_random_engine re{seed};
@@ -51,6 +52,7 @@ int main() {
 
     ofstream outfile;
     outfile.open ("init_conf.txt");
+    outfile << num_asteroids << " " << num_iter << " " << num_planets << " " << seed << "\n";
 
     for (int i = 0; i < num_asteroids; ++i){
         x = xdist(re);
@@ -100,9 +102,9 @@ int main() {
 
         std::vector<Asteroid*> temp(ast);
         while (!temp.empty()) {
-            for (int i = 0; i < ast.size(); ++i) {
+            for (unsigned int i = 0; i < ast.size(); ++i) {
                 temp.erase(temp.begin());
-                for (int j = 0; j < temp.size(); ++j) {
+                for (unsigned int j = 0; j < temp.size(); ++j) {
                     if (Asteroid::distance(*ast[i], *temp[i]) <= 5) {
                         Asteroid::rebound_asteroid(*ast[i], *temp[i]);
                     } else {
@@ -113,13 +115,13 @@ int main() {
         }
 
         //compare each asteroid with the planets
-        for (int i = 0; i < ast.size(); ++i) { //probably don't need this loop twice. Keeping for readability
-            for (int j = 0; j < planets.size(); ++j) {
+        for (unsigned int i = 0; i < ast.size(); ++i) { //probably don't need this loop twice. Keeping for readability
+            for (unsigned int j = 0; j < planets.size(); ++j) {
                 Asteroid::calc_force(*ast[i], *planets[i]);
             }
         }
 
-        for (int i = 0; i < ast.size(); ++i) {
+        for (unsigned int i = 0; i < ast.size(); ++i) {
             ast[i]->update_kinematics(0.1); //which one comes first?
             ast[i]->rebound_border(width, height);
         }
