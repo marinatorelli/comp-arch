@@ -51,11 +51,11 @@ int main(int argc, char *argv[]) {
     //initialize asteroids
     double x,y,m;
 
-    ofstream outfile;
-    outfile.open ("init_conf.txt");
-    outfile << std::fixed;
-    outfile << std::setprecision(3);
-    outfile << num_asteroids << " " << num_iter << " " << num_planets << "  " << seed << "\n";
+    ofstream init_file;
+    init_file.open ("init_conf.txt");
+    init_file << std::fixed;
+    init_file << std::setprecision(3);
+    init_file << num_asteroids << " " << num_iter << " " << num_planets << "  " << seed << "\n";
 
     for (int i = 0; i < num_asteroids; ++i){
         x = xdist(re);
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
         m = mdist(re);
         Asteroid *a = new Asteroid(x, y, m);
         ast[i] = a;
-        outfile << x << " " << y << " " << m << std::endl;
+        init_file << x << " " << y << " " << m << std::endl;
     }
 
     //initialize planets
@@ -91,12 +91,11 @@ int main(int argc, char *argv[]) {
         m = mdist(re)*10;
         Planet *p = new Planet(x,y,m);
         planets[i] = p;
-        outfile << x << " " << y << " " << m << std::endl;
+        init_file << x << " " << y << " " << m << std::endl;
     }
 
-    outfile.close();
+    init_file.close();
 
-    print_ast(ast);
     //simulate asteriods num
 
     for (int k = 0; k < num_iter; ++k) {
@@ -125,12 +124,18 @@ int main(int argc, char *argv[]) {
         }
 
         for (unsigned int i = 0; i < ast.size(); ++i) {
-            ast[i]->update_kinematics(0.1); //which one comes first?
+            ast[i]->update_kinematics(0.1); 
             ast[i]->rebound_border(width, height);
         }
     }
 
-    print_ast(ast);
+    ofstream out_file;
+    out_file.open("out.txt");
+    out_file << std::fixed;
+    out_file << std::setprecision(3);
+    for(unsigned int i = 0; i < ast.size(); ++i) {
+        out_file << ast[i]->x << " " << ast[i]->y << " " << ast[i]->vel_x << " " << ast[i]->vel_y << " " << ast[i]->mass << std::endl;
+    }
 
     return 0;
 }
