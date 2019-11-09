@@ -3,6 +3,7 @@
 #include <random>
 #include <cmath>
 #include <fstream>
+#include <iomanip>
 #include "asteroid.h"
 
 using namespace std;
@@ -52,14 +53,16 @@ int main(int argc, char *argv[]) {
 
     ofstream outfile;
     outfile.open ("init_conf.txt");
-    outfile << num_asteroids << " " << num_iter << " " << num_planets << " " << seed << "\n";
+    outfile << std::fixed;
+    outfile << std::setprecision(3);
+    outfile << num_asteroids << " " << num_iter << " " << num_planets << "  " << seed << "\n";
 
     for (int i = 0; i < num_asteroids; ++i){
         x = xdist(re);
         y = ydist(re);
         m = mdist(re);
-        Asteroid a = Asteroid(x, y, m); //dynamic memory necessary?
-        ast[i] = &a;
+        Asteroid *a = new Asteroid(x, y, m);
+        ast[i] = a;
         outfile << x << " " << y << " " << m << std::endl;
     }
 
@@ -86,8 +89,8 @@ int main(int argc, char *argv[]) {
         }
 
         m = mdist(re)*10;
-        Planet p = Planet(x,y,m);
-        planets[i] = &p;
+        Planet *p = new Planet(x,y,m);
+        planets[i] = p;
         outfile << x << " " << y << " " << m << std::endl;
     }
 
