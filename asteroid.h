@@ -38,8 +38,8 @@ public:
     template <typename T>
     static double angle_of_influence(Asteroid &a, T &b){
         double slope = (a.y - b.y) / (a.x - b.x);
-        slope = (slope > 1) ? true : 1; //does this need to execute twice?
-        slope = (slope < -1) ? true : -1;
+        slope = (slope > 1) ? 1 : slope; //does this need to execute twice?
+        slope = (slope < -1) ? -1 : slope;
         return atan(slope);
     }
 
@@ -51,8 +51,8 @@ public:
         double f_y = (G*a.mass*b.mass / distance(a, b)) * sin(angle_of_influence(a, b));
 
         //truncate to max value
-        f_x = (f_x > 100) ? true : 100;
-        f_y = (f_y > 100) ? true : 100;
+        f_x = (f_x > 100) ? 100 : f_x;
+        f_y = (f_y > 100) ? 100 : f_y;
 
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
@@ -65,8 +65,6 @@ public:
         double G = 6.674* exp(-5);
         double f_x = (G*a.mass*b.mass / distance(a, b)) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
         double f_y = (G*a.mass*b.mass / distance(a, b)) * sin(angle_of_influence(a, b));
-
-
 
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
@@ -90,6 +88,10 @@ public:
             sum_forces_x += forces_x[i];
             sum_forces_y += forces_y[i];
         }
+
+        std::cout << "Dir x " << (sum_forces_x < 0)
+        std::cout << "angle " << sum_forces_x << std::endl;  
+        std::cout << "force_y " << sum_forces_y << std::endl;
 
         double accel_x = sum_forces_x/mass;
         double accel_y = sum_forces_y/mass;
