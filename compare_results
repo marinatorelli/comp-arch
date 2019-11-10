@@ -18,3 +18,4 @@ echo -e "\nRunning init_conf.txt diff...\n"
 diff init_conf.txt init_conf.txt.base
 echo -e "Running out.txt diff...\n"
 diff out.txt out.txt.base
+

@@ -8,7 +8,7 @@
 
 class Planet{
 public:
-    Planet(){}
+    Planet(){ }
     Planet(double xcoor, double ycoor, double massarg){
         x = xcoor;
         y = ycoor;
@@ -17,12 +17,14 @@ public:
     double x;
     double y;
     double mass;
+
+    unsigned int id; 
 };
 
 class Asteroid{
 public:
     Asteroid(){
-
+        
     };
     Asteroid(double xcoor, double ycoor, double massarg){
         x = xcoor;
@@ -59,15 +61,28 @@ public:
 
         b.forces_x.push_back(-f_x); //which direction should this be in?
         b.forces_y.push_back(-f_y);
+
+        //step by step calculations
+        std::cout << (f_x < 0 ? 0 : 1) << " ";
+        std::cout << (f_y < 0 ? 0 : 1) << " ";
+        std::cout << sqrt(pow(f_y,2) + pow(f_x,2)) << " ";
+        std::cout << tan(f_y/f_x) << " " << std::endl;  
+    
     }
 
     static void calc_force(Asteroid &a, Planet &b){
         double G = 6.674* exp(-5);
-        double f_x = (G*a.mass*b.mass / distance(a, b)) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
-        double f_y = (G*a.mass*b.mass / distance(a, b)) * sin(angle_of_influence(a, b));
+        double f_x = (G*a.mass*b.mass / pow(distance(a, b),2) ) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
+        double f_y = (G*a.mass*b.mass / pow(distance(a, b),2) ) * sin(angle_of_influence(a, b));
 
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
+
+        //step by step calculations
+        std::cout << (f_x < 0 ? 0 : 1) << " ";
+        std::cout << (f_y < 0 ? 0 : 1) << " ";
+        std::cout << sqrt(pow(f_y,2) + pow(f_x,2)) << " ";
+        std::cout << tan(f_y/f_x) << " " << std::endl; 
     }
 
     //used if the distance is less than something
@@ -84,14 +99,13 @@ public:
         //acceleration = sum of forces/mass
         double sum_forces_x = 0;
         double sum_forces_y = 0;
+        std::cout << "All the forces..." << std::endl;
         for (unsigned int i = 0; i < forces_y.size(); ++i){
+            std::cout << "Force x..: " << forces_x[i] << " ";
+            std::cout << "Force y..: " << forces_y[i] << std::endl; 
             sum_forces_x += forces_x[i];
             sum_forces_y += forces_y[i];
         }
-
-        std::cout << "Dir x " << (sum_forces_x < 0)
-        std::cout << "angle " << sum_forces_x << std::endl;  
-        std::cout << "force_y " << sum_forces_y << std::endl;
 
         double accel_x = sum_forces_x/mass;
         double accel_y = sum_forces_y/mass;
@@ -128,6 +142,8 @@ public:
     double vel_x;
     double vel_y;
     double mass;
+    unsigned int id; 
+    
     std::vector<double> forces_x;
     std::vector<double> forces_y;
 };

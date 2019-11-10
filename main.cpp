@@ -62,6 +62,7 @@ int main(int argc, char *argv[]) {
         y = ydist(re);
         m = mdist(re);
         Asteroid *a = new Asteroid(x, y, m);
+        a->id = i; 
         ast[i] = a;
         init_file << x << " " << y << " " << m << std::endl;
     }
@@ -90,6 +91,7 @@ int main(int argc, char *argv[]) {
 
         m = mdist(re)*10;
         Planet *p = new Planet(x,y,m);
+        p->id = i; 
         planets[i] = p;
         init_file << x << " " << y << " " << m << std::endl;
     }
@@ -102,24 +104,28 @@ int main(int argc, char *argv[]) {
 
         //compare each asteroid with each other
 
+        std::cout << "*************asteroids vs asteroids*************" << std::endl; 
         std::vector<Asteroid*> temp(ast);
         while (!temp.empty()) {
             for (unsigned int i = 0; i < ast.size(); ++i) {
                 temp.erase(temp.begin());
                 for (unsigned int j = 0; j < temp.size(); ++j) {
-                    if (Asteroid::distance(*ast[i], *temp[i]) <= 5) {
-                        Asteroid::rebound_asteroid(*ast[i], *temp[i]);
+                    if (Asteroid::distance(*ast[i], *temp[j]) <= 5) {
+                        Asteroid::rebound_asteroid(*ast[i], *temp[j]);
                     } else {
-                        Asteroid::calc_force(*ast[i], *temp[i]);
+                        std::cout << ast[i]->id << " " << temp[j]->id << " ";  
+                        Asteroid::calc_force(*ast[i], *temp[j]);
                     }
                 }
             }
         }
 
         //compare each asteroid with the planets
-        for (unsigned int i = 0; i < ast.size(); ++i) { //probably don't need this loop twice. Keeping for readability
-            for (unsigned int j = 0; j < planets.size(); ++j) {
-                Asteroid::calc_force(*ast[i], *planets[i]);
+        std::cout << "*************asteroids vs planets*************" << std::endl;
+        for (unsigned int i = 0; i < planets.size(); ++i) { //probably don't need this loop twice. Keeping for readability
+            for (unsigned int j = 0; j < ast.size(); ++j) {
+                std::cout << planets[i]->id << " " << ast[j]->id << " " ;  
+                Asteroid::calc_force(*ast[j], *planets[i]);
             }
         }
 
