@@ -8,7 +8,9 @@
 
 class Planet{
 public:
-    Planet(){}
+    Planet(){
+		
+	}
     Planet(double xcoor, double ycoor, double massarg){
         x = xcoor;
         y = ycoor;
@@ -22,7 +24,7 @@ public:
 class Asteroid{
 public:
     Asteroid(){
-
+		
     };
     Asteroid(double xcoor, double ycoor, double massarg){
         x = xcoor;
@@ -43,10 +45,9 @@ public:
         return atan(slope);
     }
 
-    //this should take a list of asteroids
-
-    static void calc_force(Asteroid &a, Asteroid &b){
+    static double calc_force(Asteroid &a, Asteroid &b){
         double G = 6.674* exp(-5);
+		double angle = angle_of_influence(a, b);
         double f_x = (G*a.mass*b.mass / distance(a, b)) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
         double f_y = (G*a.mass*b.mass / distance(a, b)) * sin(angle_of_influence(a, b));
 
@@ -57,20 +58,29 @@ public:
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
 
-        b.forces_x.push_back(-f_x); //which direction should this be in?
-        b.forces_y.push_back(-f_y);
+		b.forces_x.push_back(-f_x);
+		b.forces_y.push_back(-f_y);
+		
+		return sqrt(pow(f_x, 2) + pow(f_y, 2))
     }
-
-    static void calc_force(Asteroid &a, Planet &b){
+	
+	static double calc_force(Asteroid &a, Planet &b){
         double G = 6.674* exp(-5);
+		double angle = angle_of_influence(a, b);
         double f_x = (G*a.mass*b.mass / distance(a, b)) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
         double f_y = (G*a.mass*b.mass / distance(a, b)) * sin(angle_of_influence(a, b));
 
+        //truncate to max value
+        f_x = (f_x > 100) ? 100 : f_x;
+        f_y = (f_y > 100) ? 100 : f_y;
+
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
+		
+		return sqrt(pow(f_x, 2) + pow(f_y, 2))
     }
 
-    //used if the distance is less than something
+    //used if the distance is less than a constant
     static void rebound_asteroid(Asteroid &a, Asteroid &b){
         double temp_vel_x = a.vel_x;
         double temp_vel_y = a.vel_y;
@@ -89,7 +99,7 @@ public:
             sum_forces_y += forces_y[i];
         }
 
-        std::cout << "Dir x " << (sum_forces_x < 0)
+        std::cout << "Dir x " << (sum_forces_x < 0);
         std::cout << "angle " << sum_forces_x << std::endl;  
         std::cout << "force_y " << sum_forces_y << std::endl;
 
@@ -101,7 +111,10 @@ public:
 
         x += vel_x * time;
         y += vel_y * time;
-
+		
+		// Restore the forces vertors for the next iteration
+		forces_x.clear();
+		forces_y.clear();
     }
     void rebound_border(int width, int height){
         //check the borders

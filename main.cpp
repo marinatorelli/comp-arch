@@ -22,7 +22,7 @@ void print_planets(Planet* ast[], int limit){
 
 
 int main(int argc, char *argv[]) {
-     //process input args
+    //process input args
     if (argc != 5) {
         std::cerr << "Error: Wrong number of parameters\n";
         return -1;
@@ -50,7 +50,8 @@ int main(int argc, char *argv[]) {
 
     //initialize asteroids
     double x,y,m;
-
+	
+	// Initiale input file with arguments
     ofstream init_file;
     init_file.open ("init_conf.txt");
     init_file << std::fixed;
@@ -98,10 +99,16 @@ int main(int argc, char *argv[]) {
 
     //simulate asteriods num
 
+	// Print information of each iteration in a file
+	ofstream steps
+	steps.open("steps.txt");
+	steps << "aster_i aster_j calculated_force angle\n";
+	double force, angle;
+	
     for (int k = 0; k < num_iter; ++k) {
 
         //compare each asteroid with each other
-
+		steps << "--- asteroids vs asteroids ---\n";
         std::vector<Asteroid*> temp(ast);
         while (!temp.empty()) {
             for (unsigned int i = 0; i < ast.size(); ++i) {
@@ -110,23 +117,30 @@ int main(int argc, char *argv[]) {
                     if (Asteroid::distance(*ast[i], *temp[i]) <= 5) {
                         Asteroid::rebound_asteroid(*ast[i], *temp[i]);
                     } else {
-                        Asteroid::calc_force(*ast[i], *temp[i]);
+                        force = Asteroid::calc_force(*ast[i], *temp[i]);
                     }
+					angle = Asteroid::angle_of_influence(*ast[i], *temp[i])
+					steps << i << " " << j << " " << force << " " << angle;
                 }
             }
         }
 
+		steps << "--- asteroids vs planets ---\n"
         //compare each asteroid with the planets
         for (unsigned int i = 0; i < ast.size(); ++i) { //probably don't need this loop twice. Keeping for readability
             for (unsigned int j = 0; j < planets.size(); ++j) {
-                Asteroid::calc_force(*ast[i], *planets[i]);
+                force = Asteroid::calc_force(*ast[i], *planets[i]);
+				angle = Asteroid::angle_of_influence(*ast[i], *temp[i]);
+				steps << i << " " << j << " " << force << " " << angle;
             }
         }
-
+		
+		// Update the values of the fields of the asteroid and check for rebounds against the borders.
         for (unsigned int i = 0; i < ast.size(); ++i) {
             ast[i]->update_kinematics(0.1); 
             ast[i]->rebound_border(width, height);
         }
+		steps << "********Iteration********\n";
     }
 
     ofstream out_file;
