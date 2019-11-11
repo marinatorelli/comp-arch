@@ -12,6 +12,7 @@ public:
     Planet(double xcoor, double ycoor, double massarg){
         x = xcoor;
         y = ycoor;
+
         mass = massarg;
     }
     double x;
@@ -29,6 +30,8 @@ public:
     Asteroid(double xcoor, double ycoor, double massarg){
         x = xcoor;
         y = ycoor;
+        vel_x = 0;
+        vel_y = 0; 
         mass = massarg;
     }
 
@@ -48,9 +51,9 @@ public:
     //this should take a list of asteroids
 
     static void calc_force(Asteroid &a, Asteroid &b){
-        double G = 6.674* exp(-5);
-        double f_x = (G*a.mass*b.mass / distance(a, b)) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
-        double f_y = (G*a.mass*b.mass / distance(a, b)) * sin(angle_of_influence(a, b));
+        double G = 6.674* pow(10, -5);
+        double f_x = ( (G*a.mass*b.mass) / distance(a, b)) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
+        double f_y = ( (G*a.mass*b.mass) / distance(a, b)) * sin(angle_of_influence(a, b));
 
         //truncate to max value
         f_x = (f_x > 100) ? 100 : f_x;
@@ -59,10 +62,10 @@ public:
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
 
-        b.forces_x.push_back(-f_x); //which direction should this be in?
+        b.forces_x.push_back(-f_x); 
         b.forces_y.push_back(-f_y);
 
-        //step by step calculations
+         /**STEP BY STEP CALCULATIONS***/
         std::cout << (f_x < 0 ? 0 : 1) << " ";
         std::cout << (f_y < 0 ? 0 : 1) << " ";
         std::cout << sqrt(pow(f_y,2) + pow(f_x,2)) << " ";
@@ -78,7 +81,7 @@ public:
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
 
-        //step by step calculations
+        /**STEP BY STEP CALCULATIONS***/
         std::cout << (f_x < 0 ? 0 : 1) << " ";
         std::cout << (f_y < 0 ? 0 : 1) << " ";
         std::cout << sqrt(pow(f_y,2) + pow(f_x,2)) << " ";
@@ -101,8 +104,8 @@ public:
         double sum_forces_y = 0;
         std::cout << "All the forces..." << std::endl;
         for (unsigned int i = 0; i < forces_y.size(); ++i){
-            std::cout << "Force x..: " << forces_x[i] << " ";
-            std::cout << "Force y..: " << forces_y[i] << std::endl; 
+            //std::cout << "Force x..: " << forces_x[i] << " ";
+            //std::cout << "Force y..: " << forces_y[i] << std::endl; 
             sum_forces_x += forces_x[i];
             sum_forces_y += forces_y[i];
         }
@@ -110,8 +113,14 @@ public:
         double accel_x = sum_forces_x/mass;
         double accel_y = sum_forces_y/mass;
 
+        //std::cout << "accel_x " << accel_x;
+        //std::cout << " accel_y " << accel_y << std::endl;  
+
         vel_x = accel_x * time;
         vel_y = accel_y * time;
+
+        //std::cout << "vel_x " << vel_x;
+        //std::cout << " vel_y " << vel_y << std::endl;  
 
         x += vel_x * time;
         y += vel_y * time;

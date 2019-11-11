@@ -8,6 +8,7 @@
 
 using namespace std;
 
+//helpful functions
 void print_ast(std::vector<Asteroid*> ast){
     for (unsigned int i = 0; i < ast.size(); ++i){
         std::cout << ast[i]->x << " " << ast[i]->y << " " << ast[i]->vel_x << " " << ast[i]->vel_y << " " << ast[i]->mass << std::endl;
@@ -113,7 +114,7 @@ int main(int argc, char *argv[]) {
                     if (Asteroid::distance(*ast[i], *temp[j]) <= 5) {
                         Asteroid::rebound_asteroid(*ast[i], *temp[j]);
                     } else {
-                        std::cout << ast[i]->id << " " << temp[j]->id << " ";  
+                        std::cout << ast[i]->id << " " << temp[j]->id << " ";  //for step-by-step
                         Asteroid::calc_force(*ast[i], *temp[j]);
                     }
                 }
@@ -124,7 +125,7 @@ int main(int argc, char *argv[]) {
         std::cout << "*************asteroids vs planets*************" << std::endl;
         for (unsigned int i = 0; i < planets.size(); ++i) { //probably don't need this loop twice. Keeping for readability
             for (unsigned int j = 0; j < ast.size(); ++j) {
-                std::cout << planets[i]->id << " " << ast[j]->id << " " ;  
+                std::cout << planets[i]->id << " " << ast[j]->id << " " ;  //for step-by-step 
                 Asteroid::calc_force(*ast[j], *planets[i]);
             }
         }
