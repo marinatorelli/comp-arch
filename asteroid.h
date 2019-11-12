@@ -48,9 +48,9 @@ public:
     static double calc_force(Asteroid &a, Asteroid &b){
         double G = 6.674* exp(-5);
 		double angle = angle_of_influence(a, b);
-        double f_x = (G*a.mass*b.mass / distance(a, b)) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
-        double f_y = (G*a.mass*b.mass / distance(a, b)) * sin(angle_of_influence(a, b));
-
+        double f_x = (G*a.mass*b.mass / pow(distance(a, b),2)) * cos(angle);  //less memory to pass parameters instead of copying whole class
+        double f_y = (G*a.mass*b.mass / pow(distance(a, b),2)) * sin(angle);
+		
         //truncate to max value
         f_x = (f_x > 100) ? 100 : f_x;
         f_y = (f_y > 100) ? 100 : f_y;
@@ -61,14 +61,14 @@ public:
 		b.forces_x.push_back(-f_x);
 		b.forces_y.push_back(-f_y);
 		
-		return sqrt(pow(f_x, 2) + pow(f_y, 2))
+		return sqrt(pow(f_x, 2) + pow(f_y, 2));
     }
 	
 	static double calc_force(Asteroid &a, Planet &b){
         double G = 6.674* exp(-5);
 		double angle = angle_of_influence(a, b);
-        double f_x = (G*a.mass*b.mass / distance(a, b)) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
-        double f_y = (G*a.mass*b.mass / distance(a, b)) * sin(angle_of_influence(a, b));
+        double f_x = (G*a.mass*b.mass / pow(distance(a, b),2)) * cos(angle);  //less memory to pass parameters instead of copying whole class
+        double f_y = (G*a.mass*b.mass / pow(distance(a, b),2)) * sin(angle);
 
         //truncate to max value
         f_x = (f_x > 100) ? 100 : f_x;
@@ -77,7 +77,7 @@ public:
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
 		
-		return sqrt(pow(f_x, 2) + pow(f_y, 2))
+		return sqrt(pow(f_x, 2) + pow(f_y, 2));
     }
 
     //used if the distance is less than a constant
@@ -99,10 +99,6 @@ public:
             sum_forces_y += forces_y[i];
         }
 
-        std::cout << "Dir x " << (sum_forces_x < 0);
-        std::cout << "angle " << sum_forces_x << std::endl;  
-        std::cout << "force_y " << sum_forces_y << std::endl;
-
         double accel_x = sum_forces_x/mass;
         double accel_y = sum_forces_y/mass;
 
@@ -112,7 +108,7 @@ public:
         x += vel_x * time;
         y += vel_y * time;
 		
-		// Restore the forces vertors for the next iteration
+		// Restore the forces vectors for the next iteration
 		forces_x.clear();
 		forces_y.clear();
     }

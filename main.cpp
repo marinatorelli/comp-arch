@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 	
 	// Initiale input file with arguments
     ofstream init_file;
-    init_file.open ("init_conf.txt");
+    init_file.open ("init.txt");
     init_file << std::fixed;
     init_file << std::setprecision(3);
     init_file << num_asteroids << " " << num_iter << " " << num_planets << "  " << seed << "\n";
@@ -100,38 +100,32 @@ int main(int argc, char *argv[]) {
     //simulate asteriods num
 
 	// Print information of each iteration in a file
-	ofstream steps
+	ofstream steps;
 	steps.open("steps.txt");
-	steps << "aster_i aster_j calculated_force angle\n";
-	double force, angle;
 	
     for (int k = 0; k < num_iter; ++k) {
-
+		double force, angle;
         //compare each asteroid with each other
 		steps << "--- asteroids vs asteroids ---\n";
-        std::vector<Asteroid*> temp(ast);
-        while (!temp.empty()) {
-            for (unsigned int i = 0; i < ast.size(); ++i) {
-                temp.erase(temp.begin());
-                for (unsigned int j = 0; j < temp.size(); ++j) {
-                    if (Asteroid::distance(*ast[i], *temp[i]) <= 5) {
-                        Asteroid::rebound_asteroid(*ast[i], *temp[i]);
-                    } else {
-                        force = Asteroid::calc_force(*ast[i], *temp[i]);
-                    }
-					angle = Asteroid::angle_of_influence(*ast[i], *temp[i])
-					steps << i << " " << j << " " << force << " " << angle;
+        for (unsigned int i = 0; i < ast.size(); ++i) {
+            for (unsigned int j = i+1; j < ast.size(); ++j) {
+                if (Asteroid::distance(*ast[i], *ast[j]) <= 5) {
+                    Asteroid::rebound_asteroid(*ast[i], *ast[j]);
+                } else {
+					force = Asteroid::calc_force(*ast[i], *ast[j]);
                 }
+				angle = Asteroid::angle_of_influence(*ast[i], *ast[j]);
+				steps << i << " " << j << " " << force << " " << angle << "\n";
             }
         }
 
-		steps << "--- asteroids vs planets ---\n"
+		steps << "--- asteroids vs planets ---\n";
         //compare each asteroid with the planets
         for (unsigned int i = 0; i < ast.size(); ++i) { //probably don't need this loop twice. Keeping for readability
             for (unsigned int j = 0; j < planets.size(); ++j) {
-                force = Asteroid::calc_force(*ast[i], *planets[i]);
-				angle = Asteroid::angle_of_influence(*ast[i], *temp[i]);
-				steps << i << " " << j << " " << force << " " << angle;
+                force = Asteroid::calc_force(*ast[i], *planets[j]);
+				angle = Asteroid::angle_of_influence(*ast[i], *planets[j]);
+				steps << i << " " << j << " " << force << " " << angle << "\n";
             }
         }
 		
@@ -142,14 +136,16 @@ int main(int argc, char *argv[]) {
         }
 		steps << "********Iteration********\n";
     }
+	steps.close();
 
     ofstream out_file;
-    out_file.open("out.txt");
+    out_file.open("output.txt");
     out_file << std::fixed;
     out_file << std::setprecision(3);
     for(unsigned int i = 0; i < ast.size(); ++i) {
         out_file << ast[i]->x << " " << ast[i]->y << " " << ast[i]->vel_x << " " << ast[i]->vel_y << " " << ast[i]->mass << std::endl;
     }
+	out_file.close();
 
     return 0;
 }
