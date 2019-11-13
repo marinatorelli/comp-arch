@@ -110,6 +110,8 @@ int main(int argc, char *argv[]) {
         while (!temp.empty()) {
             for (unsigned int i = 0; i < ast.size(); ++i) {
                 temp.erase(temp.begin());
+
+                //parallize this
                 for (unsigned int j = 0; j < temp.size(); ++j) {
                     if (Asteroid::distance(*ast[i], *temp[j]) <= 5) {
                         Asteroid::rebound_asteroid(*ast[i], *temp[j]);

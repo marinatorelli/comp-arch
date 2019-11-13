@@ -6,6 +6,8 @@
 
 #pragma once
 
+
+
 class Planet{
 public:
     Planet(){ }
@@ -24,6 +26,7 @@ public:
 
 class Asteroid{
 public:
+    static constexpr double PI = 3.141592653589793238463;
     Asteroid(){
         
     };
@@ -42,10 +45,21 @@ public:
 
     template <typename T>
     static double angle_of_influence(Asteroid &a, T &b){
-        double slope = (a.y - b.y) / (a.x - b.x);
+        double num = a.y - b.y;
+        double dem = a.x - b.x; 
+        double slope = num / dem;
         slope = (slope > 1) ? 1 : slope; //does this need to execute twice?
         slope = (slope < -1) ? -1 : slope;
-        return atan(slope);
+        double angle = atan(slope);
+        if (num > 0 && dem > 0){
+            return angle;
+        } else if (num < 0 && dem > 0){
+            return PI - angle;  
+        } else if (num < 0 && dem < 0){
+            return PI + angle; 
+        } else {
+            return 2*PI - angle; 
+        }
     }
 
     //this should take a list of asteroids
@@ -55,9 +69,7 @@ public:
         double f_x = ( (G*a.mass*b.mass) / distance(a, b)) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
         double f_y = ( (G*a.mass*b.mass) / distance(a, b)) * sin(angle_of_influence(a, b));
 
-        //truncate to max value
-        f_x = (f_x > 100) ? 100 : f_x;
-        f_y = (f_y > 100) ? 100 : f_y;
+        
 
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
@@ -74,7 +86,7 @@ public:
     }
 
     static void calc_force(Asteroid &a, Planet &b){
-        double G = 6.674* exp(-5);
+        double G = 6.674* pow(10,-5);
         double f_x = (G*a.mass*b.mass / pow(distance(a, b),2) ) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
         double f_y = (G*a.mass*b.mass / pow(distance(a, b),2) ) * sin(angle_of_influence(a, b));
 
@@ -108,6 +120,16 @@ public:
             //std::cout << "Force y..: " << forces_y[i] << std::endl; 
             sum_forces_x += forces_x[i];
             sum_forces_y += forces_y[i];
+        }
+
+
+        //truncate to max value
+
+        double total = sqrt(pow(sum_forces_x,2) + pow(sum_forces_y,2));
+        if (total > 100){
+            double angle = tan(sum_forces_y/sum_forces_x);
+            sum_forces_x = cos(angle) * 100;
+            sum_forces_y = sin(angle) * 100; 
         }
 
         double accel_x = sum_forces_x/mass;
