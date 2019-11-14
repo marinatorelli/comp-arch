@@ -3,10 +3,11 @@
 //
 #include <cmath>
 #include <vector>
+#include <fstream>
 
 #pragma once
 
-
+extern std::ofstream step_by_step;
 
 class Planet{
 public:
@@ -26,7 +27,16 @@ public:
 
 class Asteroid{
 public:
-    static constexpr double PI = 3.141592653589793238463;
+    double x;
+    double y;
+    double vel_x;
+    double vel_y;
+    double mass;
+    unsigned int id; 
+    
+    std::vector<double> forces_x;
+    std::vector<double> forces_y;
+
     Asteroid(){
         
     };
@@ -45,32 +55,26 @@ public:
 
     template <typename T>
     static double angle_of_influence(Asteroid &a, T &b){
-        double num = a.y - b.y;
-        double dem = a.x - b.x; 
-        double slope = num / dem;
-        slope = (slope > 1) ? 1 : slope; //does this need to execute twice?
+        double slope = (a.y - b.y) / (a.x - b.x);
+        slope = (slope > 1) ? 1 : slope;
         slope = (slope < -1) ? -1 : slope;
-        double angle = atan(slope);
-        if (num > 0 && dem > 0){
-            return angle;
-        } else if (num < 0 && dem > 0){
-            return PI - angle;  
-        } else if (num < 0 && dem < 0){
-            return PI + angle; 
-        } else {
-            return 2*PI - angle; 
-        }
+        return atan(slope);
     }
-
-    //this should take a list of asteroids
 
     static void calc_force(Asteroid &a, Asteroid &b){
         double G = 6.674* pow(10, -5);
-        double f_x = ( (G*a.mass*b.mass) / distance(a, b)) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
-        double f_y = ( (G*a.mass*b.mass) / distance(a, b)) * sin(angle_of_influence(a, b));
-
+        double f = (G*a.mass*b.mass) / pow(distance(a, b),2) ;  //less memory to pass parameters instead of copying whole class
+       
+        //assign component forces, truncate the |f| value if needed
+        double f_x, f_y; 
+        if (f > 100){
+            f_x =  100 * cos(angle_of_influence(a, b));
+            f_y =  100 * sin(angle_of_influence(a, b)); 
+        } else {
+            f_x = f * cos(angle_of_influence(a, b));
+            f_y = f * sin(angle_of_influence(a, b));
+        }
         
-
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
 
@@ -78,26 +82,31 @@ public:
         b.forces_y.push_back(-f_y);
 
          /**STEP BY STEP CALCULATIONS***/
-        std::cout << (f_x < 0 ? 0 : 1) << " ";
-        std::cout << (f_y < 0 ? 0 : 1) << " ";
-        std::cout << sqrt(pow(f_y,2) + pow(f_x,2)) << " ";
-        std::cout << tan(f_y/f_x) << " " << std::endl;  
+        std::cout << f << " ";
+        std::cout << angle_of_influence(a,b) << std::endl;  
     
     }
 
     static void calc_force(Asteroid &a, Planet &b){
-        double G = 6.674* pow(10,-5);
-        double f_x = (G*a.mass*b.mass / pow(distance(a, b),2) ) * cos(angle_of_influence(a, b));  //less memory to pass parameters instead of copying whole class
-        double f_y = (G*a.mass*b.mass / pow(distance(a, b),2) ) * sin(angle_of_influence(a, b));
+        double G = 6.674* pow(10, -5);
+        double f = (G*a.mass*b.mass) / pow(distance(a, b),2) ;  //less memory to pass parameters instead of copying whole class
+       
+        //assign component forces, truncate the |f| value if needed
+        double f_x, f_y; 
+        if (f > 100){
+            f_x =  100 * cos(angle_of_influence(a, b));
+            f_y =  100 * sin(angle_of_influence(a, b)); 
+        } else {
+            f_x = f * cos(angle_of_influence(a, b));
+            f_y = f * sin(angle_of_influence(a, b));
+        }
 
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
 
         /**STEP BY STEP CALCULATIONS***/
-        std::cout << (f_x < 0 ? 0 : 1) << " ";
-        std::cout << (f_y < 0 ? 0 : 1) << " ";
-        std::cout << sqrt(pow(f_y,2) + pow(f_x,2)) << " ";
-        std::cout << tan(f_y/f_x) << " " << std::endl; 
+        std::cout << f << " ";
+        std::cout << angle_of_influence(a,b) << std::endl; 
     }
 
     //used if the distance is less than something
@@ -114,22 +123,12 @@ public:
         //acceleration = sum of forces/mass
         double sum_forces_x = 0;
         double sum_forces_y = 0;
-        std::cout << "All the forces..." << std::endl;
+        //std::cout << "All the forces..." << std::endl;
         for (unsigned int i = 0; i < forces_y.size(); ++i){
             //std::cout << "Force x..: " << forces_x[i] << " ";
             //std::cout << "Force y..: " << forces_y[i] << std::endl; 
             sum_forces_x += forces_x[i];
             sum_forces_y += forces_y[i];
-        }
-
-
-        //truncate to max value
-
-        double total = sqrt(pow(sum_forces_x,2) + pow(sum_forces_y,2));
-        if (total > 100){
-            double angle = tan(sum_forces_y/sum_forces_x);
-            sum_forces_x = cos(angle) * 100;
-            sum_forces_y = sin(angle) * 100; 
         }
 
         double accel_x = sum_forces_x/mass;
@@ -168,13 +167,4 @@ public:
         }
     }
 
-    double x;
-    double y;
-    double vel_x;
-    double vel_y;
-    double mass;
-    unsigned int id; 
-    
-    std::vector<double> forces_x;
-    std::vector<double> forces_y;
 };

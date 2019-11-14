@@ -4,18 +4,21 @@ ARG3=$3
 ARG4=$4
 
 echo -e "Running nasteroids base...\n"
-echo "aster_i aster_j calculated_force angle" > step_by_step.txt
+rm step_by_step.txt
 ./nasteroids2019 $1 $2 $3 $4 > /dev/null
 
 mv init_conf.txt init_conf.txt.base
 mv out.txt out.txt.base
 
-echo -e "Running student implementation...\n"
+echo -e "Running student implementation..."
 g++ -std=c++14 -Wall -Wextra -Wno-deprecated -Werror -pedantic -pedantic-errors main.cpp -o main
-./main $1 $2 $3 $4
+./main $1 $2 $3 $4 > step_by_step.student
 
 echo -e "\nRunning init_conf.txt diff...\n"
 diff init_conf.txt init_conf.txt.base
+
 echo -e "Running out.txt diff...\n"
 diff out.txt out.txt.base
 
+echo -e "Running step-by-step.txt diff...\n"
+diff step_by_step.student step_by_step.txt

@@ -11,13 +11,13 @@ using namespace std;
 //helpful functions
 void print_ast(std::vector<Asteroid*> ast){
     for (unsigned int i = 0; i < ast.size(); ++i){
-        std::cout << ast[i]->x << " " << ast[i]->y << " " << ast[i]->vel_x << " " << ast[i]->vel_y << " " << ast[i]->mass << std::endl;
+        cout << ast[i]->x << " " << ast[i]->y << " " << ast[i]->vel_x << " " << ast[i]->vel_y << " " << ast[i]->mass << endl;
     }
 }
 
 void print_planets(Planet* ast[], int limit){
     for (int i = 0; i < limit; ++i){
-        std::cout << ast[i]->x << " " << ast[i]->y << " " << ast[i]->mass << std::endl;
+        cout << ast[i]->x << " " << ast[i]->y << " " << ast[i]->mass << endl;
     }
 }
 
@@ -25,7 +25,7 @@ void print_planets(Planet* ast[], int limit){
 int main(int argc, char *argv[]) {
      //process input args
     if (argc != 5) {
-        std::cerr << "Error: Wrong number of parameters\n";
+        cerr << "Error: Wrong number of parameters\n";
         return -1;
     }
     int num_asteroids = atoi(argv[1]);
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     normal_distribution<double> mdist{mass, sdm};
 
     //collection of asteroids and planets
-    vector<Asteroid*> ast(num_asteroids); //everything is initialzed already? Maybe don't make new instances below
+    vector<Asteroid*> ast(num_asteroids);
     vector<Planet*> planets(num_planets);
 
     //initialize asteroids
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
         x = xdist(re);
         y = ydist(re);
         m = mdist(re);
-        Asteroid *a = new Asteroid(x, y, m);
+        Asteroid *a = new Asteroid(x, y, m); //you can't assign the values directly to ast[i]. interesting
         a->id = i; 
         ast[i] = a;
         init_file << x << " " << y << " " << m << std::endl;
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
 
         //compare each asteroid with each other
 
-        std::cout << "*************asteroids vs asteroids*************" << std::endl; 
+        cout << "--- asteroids vs asteroids ---" << std::endl; 
         std::vector<Asteroid*> temp(ast);
         while (!temp.empty()) {
             for (unsigned int i = 0; i < ast.size(); ++i) {
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
                     if (Asteroid::distance(*ast[i], *temp[j]) <= 5) {
                         Asteroid::rebound_asteroid(*ast[i], *temp[j]);
                     } else {
-                        std::cout << ast[i]->id << " " << temp[j]->id << " ";  //for step-by-step
+                        cout << ast[i]->id << " " << temp[j]->id << " ";  //for step-by-step
                         Asteroid::calc_force(*ast[i], *temp[j]);
                     }
                 }
@@ -124,8 +124,9 @@ int main(int argc, char *argv[]) {
         }
 
         //compare each asteroid with the planets
-        std::cout << "*************asteroids vs planets*************" << std::endl;
-        for (unsigned int i = 0; i < planets.size(); ++i) { //probably don't need this loop twice. Keeping for readability
+
+        std::cout << "--- asteroids vs planets ---" << std::endl;
+        for (unsigned int i = 0; i < planets.size(); ++i) { 
             for (unsigned int j = 0; j < ast.size(); ++j) {
                 std::cout << planets[i]->id << " " << ast[j]->id << " " ;  //for step-by-step 
                 Asteroid::calc_force(*ast[j], *planets[i]);
@@ -136,6 +137,8 @@ int main(int argc, char *argv[]) {
             ast[i]->update_kinematics(0.1); 
             ast[i]->rebound_border(width, height);
         }
+
+        cout << std::endl << "******************** ITERATION *******************" << std::endl; 
     }
 
     ofstream out_file;
