@@ -7,8 +7,6 @@
 
 #pragma once
 
-extern std::ofstream step_by_step;
-
 class Planet{
 public:
     Planet(){ }
@@ -130,7 +128,9 @@ public:
             sum_forces_x += forces_x[i];
             sum_forces_y += forces_y[i];
         }
-
+        
+        forces_x.clear()
+        forces_y.clear()
         double accel_x = sum_forces_x/mass;
         double accel_y = sum_forces_y/mass;
 
