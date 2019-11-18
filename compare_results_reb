@@ -1,0 +1,18 @@
+ARG1=$1
+ARG2=$2
+ARG3=$3
+ARG4=$4
+
+#echo -e "Running nasteroids base...\n"
+#rm step_by_step.txt
+#./nasteroids2019 $1 $2 $3 $4 > /dev/null
+
+#mv init_conf.txt init_conf.txt.base
+#mv out.txt out.txt.base
+
+echo -e "Running student implementation..."
+g++ -std=c++14 -Wall -Wextra -Wno-deprecated -Werror -pedantic -pedantic-errors rebound_test.cpp -o main
+./main $1 > step_by_step.student
+
+cat out.txt
+cat step_by_step.student
