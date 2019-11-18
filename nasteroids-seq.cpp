@@ -4,34 +4,25 @@
 #include <cmath>
 #include <fstream>
 #include <iomanip>
-#include "asteroid.h"
+#include <omp.h>
+#include "asteroid-seq.h"
 
 using namespace std;
 
-void print_ast(std::vector<Asteroid*> ast){
-    for (unsigned int i = 0; i < ast.size(); ++i){
-        std::cout << ast[i]->x << " " << ast[i]->y << " " << ast[i]->vel_x << " " << ast[i]->vel_y << " " << ast[i]->mass << std::endl;
-    }
-}
-
-void print_planets(Planet* ast[], int limit){
-    for (int i = 0; i < limit; ++i){
-        std::cout << ast[i]->x << " " << ast[i]->y << " " << ast[i]->mass << std::endl;
-    }
-}
-
-
 int main(int argc, char *argv[]) {
-    //process input args
+     //process input args
     if (argc != 5) {
-        std::cerr << "nasteroids-seq: Wrong arguments.\nCorrect use:\nnasteroids-seq num_asteroids num_iterations num_planets seed\n";
+        cerr << "Error: Wrong number of parameters\n";
         return -1;
     }
     int num_asteroids = atoi(argv[1]);
     int num_iter = atoi(argv[2]);
     int num_planets = atoi(argv[3]);
     int seed = atoi(argv[4]);
-
+	if (num_asteroids <= 0 || num_iter <= 0 || num_planets <= 0 || seed <= 0) {
+		cerr << "Error: None of the parameters can be negative\n";
+		return -1;
+	}
     //info to generate the asteroids
     int width = 200;
     int height = 200;
@@ -45,24 +36,24 @@ int main(int argc, char *argv[]) {
     normal_distribution<double> mdist{mass, sdm};
 
     //collection of asteroids and planets
-    vector<Asteroid*> ast(num_asteroids); //everything is initialzed already? Maybe don't make new instances below
+    vector<Asteroid*> ast(num_asteroids);
     vector<Planet*> planets(num_planets);
 
-    //initialize asteroids
+    //initialize asteroids and planets
     double x,y,m;
-	
-	// Initiale input file with arguments
+
     ofstream init_file;
-    init_file.open ("init.txt");
+    init_file.open ("init_conf.txt");
     init_file << std::fixed;
-    init_file << std::setprecision(3);
+    init_file << std::setprecision(3); // Print three digits of double numbers
     init_file << num_asteroids << " " << num_iter << " " << num_planets << "  " << seed << "\n";
 
     for (int i = 0; i < num_asteroids; ++i){
         x = xdist(re);
         y = ydist(re);
         m = mdist(re);
-        Asteroid *a = new Asteroid(x, y, m);
+        Asteroid *a = new Asteroid(x, y, m); //you can't assign the values directly to ast[i]. interesting
+        a->id = i; 
         ast[i] = a;
         init_file << x << " " << y << " " << m << std::endl;
     }
@@ -91,6 +82,7 @@ int main(int argc, char *argv[]) {
 
         m = mdist(re)*10;
         Planet *p = new Planet(x,y,m);
+        p->id = i; 
         planets[i] = p;
         init_file << x << " " << y << " " << m << std::endl;
     }
@@ -98,54 +90,36 @@ int main(int argc, char *argv[]) {
     init_file.close();
 
     //simulate asteriods num
-
-	// Print information of each iteration in a file
-	ofstream steps;
-	steps.open("steps.txt");
-	
     for (int k = 0; k < num_iter; ++k) {
-		double force, angle;
         //compare each asteroid with each other
-		steps << "--- asteroids vs asteroids ---\n";
         for (unsigned int i = 0; i < ast.size(); ++i) {
-            for (unsigned int j = i+1; j < ast.size(); ++j) {
-                if (Asteroid::distance(*ast[i], *ast[j]) <= 5) {
+			for (unsigned int j = i+1; j < ast.size(); ++j) {
+				if (Asteroid::distance(*ast[i], *ast[j]) <= 5) {
                     Asteroid::rebound_asteroid(*ast[i], *ast[j]);
                 } else {
-					force = Asteroid::calc_force(*ast[i], *ast[j]);
+                    Asteroid::calc_force(*ast[i], *ast[j]);
                 }
-				angle = Asteroid::angle_of_influence(*ast[i], *ast[j]);
-				steps << i << " " << j << " " << force << " " << angle << "\n";
             }
         }
-
-		steps << "--- asteroids vs planets ---\n";
         //compare each asteroid with the planets
-        for (unsigned int i = 0; i < ast.size(); ++i) { //probably don't need this loop twice. Keeping for readability
-            for (unsigned int j = 0; j < planets.size(); ++j) {
-                force = Asteroid::calc_force(*ast[i], *planets[j]);
-				angle = Asteroid::angle_of_influence(*ast[i], *planets[j]);
-				steps << i << " " << j << " " << force << " " << angle << "\n";
+        for (unsigned int i = 0; i < planets.size(); ++i) { 
+            for (unsigned int j = 0; j < ast.size(); ++j) {
+                Asteroid::calc_force(*ast[j], *planets[i]);
             }
         }
-		
-		// Update the values of the fields of the asteroid and check for rebounds against the borders.
         for (unsigned int i = 0; i < ast.size(); ++i) {
             ast[i]->update_kinematics(0.1); 
             ast[i]->rebound_border(width, height);
         }
-		steps << "********Iteration********\n";
     }
-	steps.close();
 
     ofstream out_file;
-    out_file.open("output.txt");
+    out_file.open("out.txt");
     out_file << std::fixed;
     out_file << std::setprecision(3);
     for(unsigned int i = 0; i < ast.size(); ++i) {
         out_file << ast[i]->x << " " << ast[i]->y << " " << ast[i]->vel_x << " " << ast[i]->vel_y << " " << ast[i]->mass << std::endl;
     }
-	out_file.close();
 
     return 0;
 }
