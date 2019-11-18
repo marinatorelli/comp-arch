@@ -1,12 +1,15 @@
+
 #include <iostream>
 #include <vector>
 #include <random>
 #include <cmath>
 #include <fstream>
 #include <iomanip>
+#include <chrono>
 #include "asteroid.h"
 
 using namespace std;
+using namespace std::chrono;
 
 //helpful functions
 void print_ast(std::vector<Asteroid*> ast){
@@ -23,6 +26,10 @@ void print_planets(Planet* ast[], int limit){
 
 
 int main(int argc, char *argv[]) {
+
+	 // Get starting timepoint 
+ 	   auto start = high_resolution_clock::now(); 
+
      //process input args
     if (argc != 5) {
         cerr << "Error: Wrong number of parameters\n";
@@ -148,6 +155,13 @@ int main(int argc, char *argv[]) {
     for(unsigned int i = 0; i < ast.size(); ++i) {
         out_file << ast[i]->x << " " << ast[i]->y << " " << ast[i]->vel_x << " " << ast[i]->vel_y << " " << ast[i]->mass << std::endl;
     }
+	// Get ending timepoint 
+	 auto stop = high_resolution_clock::now(); 
+	   auto duration = duration_cast<microseconds>(stop - start); 
+  
+    cout << "Time taken by function: "
+         << duration.count() << " microseconds" << endl; 
+  
 
     return 0;
 }
