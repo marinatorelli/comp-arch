@@ -7,18 +7,12 @@
 
 #pragma once
 
-using namespace std;
-using std::vector;
+extern std::ofstream step_by_step;
 
 class Planet{
 public:
     Planet(){ }
-<<<<<<< HEAD
     Planet(double xcoor, double ycoor, double massarg){
-=======
-    Planet(unsigned int idarg, double xcoor, double ycoor, double massarg){
-		id = idarg;
->>>>>>> a5ecb2f36e298b1b2aaa3babf5560ab6ad61d3a7
         x = xcoor;
         y = ycoor;
 
@@ -35,7 +29,6 @@ class Asteroid{
 public:
     double x;
     double y;
-<<<<<<< HEAD
     double vel_x;
     double vel_y;
     double mass;
@@ -44,9 +37,7 @@ public:
     std::vector<double> forces_x;
     std::vector<double> forces_y;
 
-    Asteroid(){
-        
-    };
+    Asteroid(){ }
     Asteroid(double xcoor, double ycoor, double massarg){
         x = xcoor;
         y = ycoor;
@@ -57,9 +48,7 @@ public:
 
     template <typename T>
     static double distance(Asteroid &a, T &b){
-        double dist = sqrt( pow(a.x - b.x, 2) + pow(a.y - b.y, 2) );
-        //std::cout << "Dist: " << dist << std::endl;
-        return  dist; 
+        return sqrt( pow(a.x - b.x, 2) + pow(a.y - b.y, 2) );
     }
 
     template <typename T>
@@ -73,9 +62,10 @@ public:
     static void calc_force(Asteroid &a, Asteroid &b){
         double G = 6.674* pow(10, -5);
         double f = (G*a.mass*b.mass) / pow(distance(a, b),2) ;  //less memory to pass parameters instead of copying whole class
-        double angle = angle_of_influence(a, b); 
+       
         //assign component forces, truncate the |f| value if needed
         double f_x, f_y; 
+		double angle = angle_of_influence(a, b);
         if (f > 100){
             f_x =  100 * cos(angle);
             f_y =  100 * sin(angle); 
@@ -89,13 +79,6 @@ public:
 
         b.forces_x.push_back(-f_x); 
         b.forces_y.push_back(-f_y);
-
-         /**STEP BY STEP CALCULATIONS***/
-        //std::cout << std::fixed;
-        //std::cout << std::setprecision(6);
-        std::cout << f << " ";
-        std::cout << angle_of_influence(a,b) << std::endl;  
-    
     }
 
     static void calc_force(Asteroid &a, Planet &b){
@@ -104,63 +87,52 @@ public:
        
         //assign component forces, truncate the |f| value if needed
         double f_x, f_y; 
+		double angle = angle_of_influence(a, b);
         if (f > 100){
-            f_x =  100 * cos(angle_of_influence(a, b));
-            f_y =  100 * sin(angle_of_influence(a, b)); 
+            f_x =  100 * cos(angle);
+            f_y =  100 * sin(angle); 
         } else {
-            f_x = f * cos(angle_of_influence(a, b));
-            f_y = f * sin(angle_of_influence(a, b));
+            f_x = f * cos(angle);
+            f_y = f * sin(angle);
         }
 
         a.forces_x.push_back(f_x);
         a.forces_y.push_back(f_y);
-
-        /**STEP BY STEP CALCULATIONS***/
-        std::cout << f << " ";
-        std::cout << angle_of_influence(a,b) << std::endl; 
     }
 
     //used if the distance is less than something
     static void rebound_asteroid(Asteroid &a, Asteroid &b){
         double temp_vel_x = a.vel_x;
         double temp_vel_y = a.vel_y;
+		// #pragma omp atomic
         a.vel_x = b.vel_x;
         a.vel_y = b.vel_y;
         b.vel_x = temp_vel_x;
         b.vel_y = temp_vel_y;
-        std::cout << "This was called" << std::endl; 
     }
 
     void update_kinematics(double time){
         //acceleration = sum of forces/mass
         double sum_forces_x = 0;
         double sum_forces_y = 0;
-        //std::cout << "All the forces..." << std::endl;
+
         for (unsigned int i = 0; i < forces_y.size(); ++i){
-            //std::cout << "Force x..: " << forces_x[i] << " ";
-            //std::cout << "Force y..: " << forces_y[i] << std::endl; 
             sum_forces_x += forces_x[i];
             sum_forces_y += forces_y[i];
         }
-        
-        //clear the forces
-        forces_y.clear();
-        forces_x.clear();
 
         double accel_x = sum_forces_x/mass;
         double accel_y = sum_forces_y/mass;
-
-        //std::cout << "accel_x " << accel_x;
-        //std::cout << " accel_y " << accel_y << std::endl;  
-
+		
         vel_x = accel_x * time;
         vel_y = accel_y * time;
 
-        //std::cout << "vel_x " << vel_x;
-        //std::cout << " vel_y " << vel_y << std::endl;  
-
         x += vel_x * time;
         y += vel_y * time;
+		
+		// Restore the forces vectors for the next iteration
+		forces_x.clear();
+		forces_y.clear();
 
     }
     void rebound_border(int width, int height){
@@ -179,70 +151,7 @@ public:
         }
         if (y >= height) {
             y = height-5;
-            vel_y *= 1;
+            vel_y *= -1;
         }
     }
-
-=======
-	double mass;
-	
-    double vel_x;
-    double vel_y;
-	
-    unsigned int id; 
-    
-    vector <double> forces_x;
-    vector <double> forces_y;
-
-    Asteroid() {}
-    Asteroid(unsigned int idarg, double xcoor, double ycoor, double massarg, int nbodies){
-		id = idarg;
-        x = xcoor;
-        y = ycoor;
-		mass = massarg;
-        vel_x = 0;
-        vel_y = 0; 
-		vector <double> temp(nbodies);
-		forces_x = temp;
-		forces_y = temp;
-		
-    }
-	void update_kinematics(double time){
-		//acceleration = sum of forces/mass
-		double sum_forces_x = 0;
-		double sum_forces_y = 0;
-
-		for (unsigned int i = 0; i < forces_y.size(); ++i){
-			sum_forces_x += forces_x[i];
-			sum_forces_y += forces_y[i];
-		}
-		double accel_x = sum_forces_x/mass;
-		double accel_y = sum_forces_y/mass;
-			
-		vel_x += accel_x * time;
-		vel_y += accel_y * time;
-
-		x += vel_x * time;
-		y += vel_y * time;
-	}
-	void rebound_border(int width, int height){
-		//check the borders
-		if (x <= 0){
-			x = 5;
-			vel_x *= -1;
-		}
-		if (x >= width){
-			x = width-5;
-			vel_x *= -1;
-		}
-		if (y <= 0) {
-			y = 5;
-			vel_y *= -1;
-		}
-		if (y >= height) {
-			y = height-5;
-			vel_y *= -1;
-		}
-	}
->>>>>>> a5ecb2f36e298b1b2aaa3babf5560ab6ad61d3a7
 };
