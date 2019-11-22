@@ -21,7 +21,7 @@ int main(int argc, char *argv[]){
 	unsigned int height = 200; 
 
 	vector<Asteroid*> ast;
-	Asteroid a = Asteroid(100,109,50);
+	Asteroid a = Asteroid(100,105,50);
 	a.id = 1;
 	Asteroid b = Asteroid(100,110,50);
 	b.id = 2; 
@@ -30,14 +30,14 @@ int main(int argc, char *argv[]){
 
 	//planet init
 	std::vector<Planet*> planets;
-	Planet p1 = Planet(0,0,10000);
+	Planet p1 = Planet(100,0,1000);
 	p1.id = 1; 
-	Planet p2 = Planet(0,1,10000);
+	Planet p2 = Planet(0,200,10000000);
 	p2.id = 2; 
-	Planet p3 = Planet(1,0,10000);
-	p3.id = 3; 
-	Planet p4 = Planet(1,1,10000);
-	p4.id = 4; 
+	//Planet p3 = Planet(1,0,20000000);
+	//p3.id = 3; 
+	//Planet p4 = Planet(1,1,500);
+	//p4.id = 4; 
 
 	planets.push_back(&p1);
 	planets.push_back(&p2);	

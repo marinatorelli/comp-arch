@@ -50,7 +50,9 @@ public:
 
     template <typename T>
     static double distance(Asteroid &a, T &b){
-        return sqrt( pow(a.x - b.x, 2) + pow(a.y - b.y, 2) );
+        double dist = sqrt( pow(a.x - b.x, 2) + pow(a.y - b.y, 2) );
+        //std::cout << "Dist: " << dist << std::endl;
+        return  dist; 
     }
 
     template <typename T>
@@ -64,15 +66,15 @@ public:
     static void calc_force(Asteroid &a, Asteroid &b){
         double G = 6.674* pow(10, -5);
         double f = (G*a.mass*b.mass) / pow(distance(a, b),2) ;  //less memory to pass parameters instead of copying whole class
-       
+        double angle = angle_of_influence(a, b); 
         //assign component forces, truncate the |f| value if needed
         double f_x, f_y; 
         if (f > 100){
-            f_x =  100 * cos(angle_of_influence(a, b));
-            f_y =  100 * sin(angle_of_influence(a, b)); 
+            f_x =  100 * cos(angle);
+            f_y =  100 * sin(angle); 
         } else {
-            f_x = f * cos(angle_of_influence(a, b));
-            f_y = f * sin(angle_of_influence(a, b));
+            f_x = f * cos(angle);
+            f_y = f * sin(angle);
         }
         
         a.forces_x.push_back(f_x);
@@ -82,6 +84,8 @@ public:
         b.forces_y.push_back(-f_y);
 
          /**STEP BY STEP CALCULATIONS***/
+        //std::cout << std::fixed;
+        //std::cout << std::setprecision(6);
         std::cout << f << " ";
         std::cout << angle_of_influence(a,b) << std::endl;  
     
@@ -117,6 +121,7 @@ public:
         a.vel_y = b.vel_y;
         b.vel_x = temp_vel_x;
         b.vel_y = temp_vel_y;
+        std::cout << "This was called" << std::endl; 
     }
 
     void update_kinematics(double time){
@@ -130,6 +135,10 @@ public:
             sum_forces_x += forces_x[i];
             sum_forces_y += forces_y[i];
         }
+
+        //clear the forces
+        forces_y.clear();
+        forces_x.clear();
 
         double accel_x = sum_forces_x/mass;
         double accel_y = sum_forces_y/mass;

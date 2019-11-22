@@ -106,22 +106,17 @@ int main(int argc, char *argv[]) {
         //compare each asteroid with each other
 
         cout << "--- asteroids vs asteroids ---" << std::endl; 
-        std::vector<Asteroid*> temp(ast);
-        while (!temp.empty()) {
-            for (unsigned int i = 0; i < ast.size(); ++i) {
-                temp.erase(temp.begin());
-
+        for (unsigned int i = 0; i < ast.size(); ++i) {
                 //parallize this
-                for (unsigned int j = 0; j < temp.size(); ++j) {
-                    if (Asteroid::distance(*ast[i], *temp[j]) <= 5) {
-                        Asteroid::rebound_asteroid(*ast[i], *temp[j]);
+                for (unsigned int j = i+1; j < ast.size(); ++j) {
+                    if (Asteroid::distance(*ast[i], *ast[j]) <= 5) {
+                        Asteroid::rebound_asteroid(*ast[i], *ast[j]);
                     } else {
-                        cout << ast[i]->id << " " << temp[j]->id << " ";  //for step-by-step
-                        Asteroid::calc_force(*ast[i], *temp[j]);
+                        cout << ast[i]->id << " " << ast[j]->id << " ";  //for step-by-step
+                        Asteroid::calc_force(*ast[i], *ast[j]);
                     }
                 }
             }
-        }
 
         //compare each asteroid with the planets
 
