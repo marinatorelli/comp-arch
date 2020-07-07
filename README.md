@@ -1,6 +1,6 @@
 # cmparc-2019
 
-Group Project for Computer Archetecutre at UC3M 
+Group Project for Computer Architecture at UC3M 
 
 To compare results between base file and student implementation run 
 
